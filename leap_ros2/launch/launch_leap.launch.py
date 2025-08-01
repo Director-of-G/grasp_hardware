@@ -16,7 +16,7 @@ def generate_launch_description():
                 {'kP': 800.0},
                 {'kI': 0.0},
                 {'kD': 200.0},
-                {'curr_lim': 500.0}
+                {'curr_lim': 550.0}
             ]
         ),
         # Node(

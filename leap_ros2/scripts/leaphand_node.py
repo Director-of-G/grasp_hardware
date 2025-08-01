@@ -30,8 +30,7 @@ class LeapNode(Node):
         self.kD = self.declare_parameter('kD', 200.0).get_parameter_value().double_value
         self.curr_lim = self.declare_parameter('curr_lim', 350.0).get_parameter_value().double_value
         self.ema_amount = 0.2
-        # self.prev_pos = self.pos = self.curr_pos = lhu.allegro_to_LEAPhand(np.zeros(16))
-        self.prev_pos = self.pos = self.curr_pos = lhu.allegro_to_LEAPhand(np.zeros(12))
+        self.prev_pos = self.pos = self.curr_pos = lhu.allegro_to_LEAPhand(np.zeros(16))
 
         # Subscribes to a variety of sources that can command the hand
         self.create_subscription(JointState, 'cmd_leap', self._receive_pose, 10)
@@ -54,8 +53,7 @@ class LeapNode(Node):
         # You can put the correct port here or have the node auto-search for a hand at the first 3 ports.
         # For example ls /dev/serial/by-id/* to find your LEAP Hand. Then use the result.  
         # For example: /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7W91VW-if00-port0
-        # self.motors = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-        self.motors = [0,1,2,3,4,5,6,7,12,13,14,15]
+        self.motors = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
         try:
             self.dxl_client = DynamixelClient(self.motors, '/dev/ttyUSB0', 4000000)
             self.dxl_client.connect()

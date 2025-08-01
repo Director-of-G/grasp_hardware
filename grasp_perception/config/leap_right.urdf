@@ -516,7 +516,7 @@
     </joint> -->
     <link name="wrist_mount" />
     <joint name="wrist_joint" type="fixed">
-        <origin rpy="3.14159 0 -1.5708" xyz="-0.0381 -0.03084 0" />
+        <origin rpy="3.14159 0 -1.5708" xyz="-0.0571 -0.03384 0" />
         <parent link="palm_lower" />
         <child link="wrist_mount" />
     </joint>

@@ -28,8 +28,7 @@ class MinimalClientAsync(Node):
 def main(args=None):
     rclpy.init(args=args)
     minimal_client = MinimalClientAsync()
-    # x = list(np.zeros(16))
-    x = list(np.zeros(12))
+    x = list(np.zeros(16))
     y = 0.025
     while True:
         response = minimal_client.send_request()

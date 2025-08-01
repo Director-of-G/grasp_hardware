@@ -35,8 +35,8 @@ def allegro_to_LEAPhand(joints, zeros = True):
     return ret_joints
 
 def LEAPhand_to_sim_ones(joints):
-    sim_min = np.array([-1.047, -0.314, -0.506, -0.366, -1.047, -0.314, -0.506, -0.366, -0.349, -0.47, -1.20, -1.34])
-    sim_max = np.array([1.047,    2.23,  1.885,  2.042,  1.047,   2.23,  1.885,  2.042,  2.094,  2.443, 1.90,  1.88])
+    sim_min = np.array([-1.047, -0.314, -0.506, -0.366, -1.047, -0.314, -0.506, -0.366, -1.047, -0.314, -0.506, -0.366, -0.349, -0.47, -1.20, -1.34])
+    sim_max = np.array([1.047,    2.23,  1.885,  2.042,  1.047,   2.23,  1.885,  2.042,  1.047,   2.23,  1.885,  2.042,  2.094,  2.443, 1.90,  1.88])
     joints = lhu.unscale(joints, sim_min, sim_max)
     return joints
 
@@ -75,9 +75,9 @@ class GraspClient(Node):
 
         self.enable_update_grasp = True
         self.graspgen_joint_names = self.joint_names
-        self.hw_joint_names = [f'joint_{i}' for i in [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15]]
-        self.hand_curr_joints_ones = np.zeros(12,)
-        self.hand_home_joints_ones = LEAPhand_to_sim_ones(np.zeros(12,))
+        self.hw_joint_names = [f'joint_{i}' for i in range(16)]
+        self.hand_curr_joints_ones = np.zeros(16,)
+        self.hand_home_joints_ones = LEAPhand_to_sim_ones(np.zeros(16,))
 
         gengrasp_to_hw_joint_remap = []
         for i in self.hw_joint_names:
@@ -107,7 +107,7 @@ class GraspClient(Node):
         self.T_pc_to_depth = np.eye(4,)
         self.T_palm_to_pc = np.eye(4,)
         self.T_wrist_to_palm = pos_quat_to_transform(
-            pos=[-0.0381, -0.03084, 0],
+            pos=[-0.0571, -0.03384, 0],
             quat=[7.07105483e-01, -7.07108080e-01, -9.38187392e-07,  9.38183946e-07]
         )
 
@@ -214,7 +214,11 @@ class GraspClient(Node):
 
         print(f"Object pose: {obj_pose}")
 
-        gen_grasp = get_generated_grasp_from_server(obj_pcd, obj_pose)
+        try:
+            gen_grasp = get_generated_grasp_from_server(obj_pcd, obj_pose)
+        except:
+            self.get_logger().error("Failed to get generated grasp from server")
+            return
         grasp_qpos = gen_grasp['grasp_qpos'][0]
 
         grasp_id = np.random.choice(grasp_qpos.shape[0])
@@ -272,7 +276,7 @@ class GraspClient(Node):
         gengrasp_joint_pos = latest_grasp_qpos[7:]
         hw_joint_pos = np.array(gengrasp_joint_pos)[self.gengrasp_to_hw_joint_remap]
         hw_joint_pos_ones = LEAPhand_to_sim_ones(hw_joint_pos)
-        # self.command_hand_to_joints(q=LEAPhand_to_sim_ones(hw_joint_pos))
+        # self.command_hand_to_joints(q=lhu.LEAPhand_to_sim_ones(hw_joint_pos))
         # self.slowly_move_hand_to_joints(q=hw_joint_pos_ones, duration=1.0)
 
         # solve ik here
@@ -395,7 +399,7 @@ class GraspClient(Node):
         # FIXME: THIS IS HARDCODE! squeeze to grasp the object
         squeeze_joint_ones = hand_target_joint_ones.copy()
         # squeeze_joint_ones[[1, 5, 11]] += 0.3
-        self.slowly_move_hand_to_joints(q=squeeze_joint_ones, duration=1.0)
+        self.slowly_move_hand_to_joints(q=squeeze_joint_ones, duration=3.0)
 
         time.sleep(2)
         self.ur_client.move_joints(self.ur_initial_joints)
